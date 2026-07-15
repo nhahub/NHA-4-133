@@ -1,0 +1,86 @@
+﻿{
+    "$schema":  "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "factoryName":  {
+                                           "type":  "string",
+                                           "metadata":  "Data Factory name",
+                                           "defaultValue":  "patient-monitoring-adf"
+                                       },
+                       "ls_blob_storage_connectionString":  {
+                                                                "type":  "secureString",
+                                                                "metadata":  "Secure string for \u0027connectionString\u0027 of \u0027ls_blob_storage\u0027"
+                                                            },
+                       "ls_sql_patient_vitals_password":  {
+                                                              "type":  "secureString",
+                                                              "metadata":  "Secure string for \u0027password\u0027 of \u0027ls_sql_patient_vitals\u0027"
+                                                          },
+                       "ls_sql_patient_vitals_properties_typeProperties_server":  {
+                                                                                      "type":  "string",
+                                                                                      "defaultValue":  "patient-monitoring-srv.database.windows.net"
+                                                                                  },
+                       "ls_sql_patient_vitals_properties_typeProperties_database":  {
+                                                                                        "type":  "string",
+                                                                                        "defaultValue":  "patient-monitoring-db"
+                                                                                    },
+                       "ls_sql_patient_vitals_properties_typeProperties_userName":  {
+                                                                                        "type":  "string",
+                                                                                        "defaultValue":  "sqladmin"
+                                                                                    },
+                       "containerUri":  {
+                                            "type":  "string",
+                                            "metadata":  "URI to storage account containing linked ARM templates"
+                                        },
+                       "containerSasToken":  {
+                                                 "type":  "string",
+                                                 "metadata":  "Sas token to storage account containing linked ARM templates"
+                                             },
+                       "storageAccountResourceId":  {
+                                                        "type":  "string",
+                                                        "metadata":  "Azure Storage account resource ID used by the Blob event trigger"
+                                                    }
+                   },
+    "variables":  {
+                      "factoryId":  "[concat(\u0027Microsoft.DataFactory/factories/\u0027, parameters(\u0027factoryName\u0027))]"
+                  },
+    "resources":  [
+                      {
+                          "name":  "patient-monitoring-adf_ArmTemplate_0",
+                          "type":  "Microsoft.Resources/deployments",
+                          "apiVersion":  "2024-03-01",
+                          "properties":  {
+                                             "mode":  "incremental",
+                                             "templateLink":  {
+                                                                  "uri":  "[concat(parameters(\u0027containerUri\u0027), \u0027/ArmTemplate_0.json\u0027, parameters(\u0027containerSasToken\u0027))]",
+                                                                  "contentVersion":  "1.0.0.0"
+                                                              },
+                                             "parameters":  {
+                                                                "factoryName":  {
+                                                                                    "value":  "[parameters(\u0027factoryName\u0027)]"
+                                                                                },
+                                                                "ls_blob_storage_connectionString":  {
+                                                                                                         "value":  "[parameters(\u0027ls_blob_storage_connectionString\u0027)]"
+                                                                                                     },
+                                                                "ls_sql_patient_vitals_password":  {
+                                                                                                       "value":  "[parameters(\u0027ls_sql_patient_vitals_password\u0027)]"
+                                                                                                   },
+                                                                "ls_sql_patient_vitals_properties_typeProperties_server":  {
+                                                                                                                               "value":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_server\u0027)]"
+                                                                                                                           },
+                                                                "ls_sql_patient_vitals_properties_typeProperties_database":  {
+                                                                                                                                 "value":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_database\u0027)]"
+                                                                                                                             },
+                                                                "ls_sql_patient_vitals_properties_typeProperties_userName":  {
+                                                                                                                                 "value":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_userName\u0027)]"
+                                                                                                                             },
+                                                                "storageAccountResourceId":  {
+                                                                                                 "value":  "[parameters(\u0027storageAccountResourceId\u0027)]"
+                                                                                             }
+                                                            }
+                                         },
+                          "dependsOn":  [
+
+                                        ]
+                      }
+                  ]
+}

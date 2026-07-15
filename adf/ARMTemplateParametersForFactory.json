@@ -1,0 +1,27 @@
+﻿{
+    "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "factoryName":  {
+                                           "value":  "patient-monitoring-adf"
+                                       },
+                       "ls_blob_storage_connectionString":  {
+                                                                "value":  ""
+                                                            },
+                       "ls_sql_patient_vitals_password":  {
+                                                              "value":  ""
+                                                          },
+                       "ls_sql_patient_vitals_properties_typeProperties_server":  {
+                                                                                      "value":  "patient-monitoring-srv.database.windows.net"
+                                                                                  },
+                       "ls_sql_patient_vitals_properties_typeProperties_database":  {
+                                                                                        "value":  "patient-monitoring-db"
+                                                                                    },
+                       "ls_sql_patient_vitals_properties_typeProperties_userName":  {
+                                                                                        "value":  "sqladmin"
+                                                                                    },
+                       "storageAccountResourceId":  {
+                                                        "value":  "/subscriptions/\u003csubscription-id\u003e/resourceGroups/\u003cresource-group\u003e/providers/Microsoft.Storage/storageAccounts/\u003cstorage-account-name\u003e"
+                                                    }
+                   }
+}

@@ -1,0 +1,30 @@
+# ==============================================================================
+# Automated Post-Hospital Patient Monitoring System - Requirements
+# ==============================================================================
+
+# Data Manipulation & Analysis
+pandas>=2.1.0
+numpy>=1.25.0
+
+# Database Connectivity (Azure SQL Database & general SQL)
+pyodbc>=5.0.0
+SQLAlchemy>=2.0.0
+
+# Configuration & Environment
+python-dotenv>=1.0.0
+
+# Azure Cloud Storage & Security
+azure-storage-blob>=12.18.0
+azure-identity>=1.14.0
+
+# Testing
+pytest>=7.4.0
+
+# PDF Report Generation (used by generate_report.py)
+reportlab>=4.0.0
+
+# Markdown table rendering (used by clean_data.py via DataFrame.to_markdown())
+tabulate>=0.9.0
+
+# Excel I/O support (openpyxl backend for pandas read_excel / to_excel)
+openpyxl>=3.1.0

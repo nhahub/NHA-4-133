@@ -1,0 +1,587 @@
+﻿{
+    "$schema":  "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "factoryName":  {
+                                           "type":  "string",
+                                           "metadata":  "Data Factory name",
+                                           "defaultValue":  "patient-monitoring-adf"
+                                       },
+                       "ls_blob_storage_connectionString":  {
+                                                                "type":  "secureString",
+                                                                "metadata":  "Secure string for \u0027connectionString\u0027 of \u0027ls_blob_storage\u0027"
+                                                            },
+                       "ls_sql_patient_vitals_password":  {
+                                                              "type":  "secureString",
+                                                              "metadata":  "Secure string for \u0027password\u0027 of \u0027ls_sql_patient_vitals\u0027"
+                                                          },
+                       "ls_sql_patient_vitals_properties_typeProperties_server":  {
+                                                                                      "type":  "string",
+                                                                                      "defaultValue":  "patient-monitoring-srv.database.windows.net"
+                                                                                  },
+                       "ls_sql_patient_vitals_properties_typeProperties_database":  {
+                                                                                        "type":  "string",
+                                                                                        "defaultValue":  "patient-monitoring-db"
+                                                                                    },
+                       "ls_sql_patient_vitals_properties_typeProperties_userName":  {
+                                                                                        "type":  "string",
+                                                                                        "defaultValue":  "sqladmin"
+                                                                                    },
+                       "storageAccountResourceId":  {
+                                                        "type":  "string",
+                                                        "metadata":  "Azure Storage account resource ID used by the Blob event trigger"
+                                                    }
+                   },
+    "variables":  {
+                      "factoryId":  "[concat(\u0027Microsoft.DataFactory/factories/\u0027, parameters(\u0027factoryName\u0027))]"
+                  },
+    "resources":  [
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/ls_blob_storage\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/linkedServices",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "annotations":  [
+
+                                                             ],
+                                             "type":  "AzureBlobStorage",
+                                             "typeProperties":  {
+                                                                    "connectionString":  "[parameters(\u0027ls_blob_storage_connectionString\u0027)]"
+                                                                }
+                                         },
+                          "dependsOn":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/ls_sql_patient_vitals\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/linkedServices",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "annotations":  [
+
+                                                             ],
+                                             "type":  "AzureSqlDatabase",
+                                             "typeProperties":  {
+                                                                    "server":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_server\u0027)]",
+                                                                    "database":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_database\u0027)]",
+                                                                    "encrypt":  "mandatory",
+                                                                    "trustServerCertificate":  false,
+                                                                    "authenticationType":  "SQL",
+                                                                    "userName":  "[parameters(\u0027ls_sql_patient_vitals_properties_typeProperties_userName\u0027)]",
+                                                                    "password":  {
+                                                                                     "type":  "SecureString",
+                                                                                     "value":  "[parameters(\u0027ls_sql_patient_vitals_password\u0027)]"
+                                                                                 }
+                                                                }
+                                         },
+                          "dependsOn":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/ds_raw_csv\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/datasets",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "linkedServiceName":  {
+                                                                       "referenceName":  "ls_blob_storage",
+                                                                       "type":  "LinkedServiceReference"
+                                                                   },
+                                             "annotations":  [
+
+                                                             ],
+                                             "type":  "DelimitedText",
+                                             "typeProperties":  {
+                                                                    "location":  {
+                                                                                     "type":  "AzureBlobStorageLocation",
+                                                                                     "fileName":  "human_vital_signs_dataset_2024.csv",
+                                                                                     "container":  "raw"
+                                                                                 },
+                                                                    "columnDelimiter":  ",",
+                                                                    "escapeChar":  "\\",
+                                                                    "firstRowAsHeader":  true,
+                                                                    "quoteChar":  "\""
+                                                                },
+                                             "schema":  [
+                                                            {
+                                                                "name":  "Patient ID",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Heart Rate",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Respiratory Rate",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Timestamp",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Body Temperature",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Oxygen Saturation",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Systolic Blood Pressure",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Diastolic Blood Pressure",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Age",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Gender",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Weight (kg)",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Height (m)",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Derived_HRV",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Derived_Pulse_Pressure",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Derived_BMI",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Derived_MAP",
+                                                                "type":  "String"
+                                                            },
+                                                            {
+                                                                "name":  "Risk Category",
+                                                                "type":  "String"
+                                                            }
+                                                        ]
+                                         },
+                          "dependsOn":  [
+                                            "[concat(variables(\u0027factoryId\u0027), \u0027/linkedServices/ls_blob_storage\u0027)]"
+                                        ]
+                      },
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/ds_sql_patient_vitals\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/datasets",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "linkedServiceName":  {
+                                                                       "referenceName":  "ls_sql_patient_vitals",
+                                                                       "type":  "LinkedServiceReference"
+                                                                   },
+                                             "annotations":  [
+
+                                                             ],
+                                             "type":  "AzureSqlTable",
+                                             "schema":  [
+                                                            {
+                                                                "name":  "record_id",
+                                                                "type":  "int",
+                                                                "precision":  10
+                                                            },
+                                                            {
+                                                                "name":  "patient_id",
+                                                                "type":  "int",
+                                                                "precision":  10
+                                                            },
+                                                            {
+                                                                "name":  "measured_at",
+                                                                "type":  "datetime2",
+                                                                "scale":  6
+                                                            },
+                                                            {
+                                                                "name":  "heart_rate",
+                                                                "type":  "smallint",
+                                                                "precision":  5
+                                                            },
+                                                            {
+                                                                "name":  "respiratory_rate",
+                                                                "type":  "smallint",
+                                                                "precision":  5
+                                                            },
+                                                            {
+                                                                "name":  "body_temperature",
+                                                                "type":  "decimal",
+                                                                "precision":  4,
+                                                                "scale":  2
+                                                            },
+                                                            {
+                                                                "name":  "oxygen_saturation",
+                                                                "type":  "decimal",
+                                                                "precision":  5,
+                                                                "scale":  2
+                                                            },
+                                                            {
+                                                                "name":  "systolic_bp",
+                                                                "type":  "smallint",
+                                                                "precision":  5
+                                                            },
+                                                            {
+                                                                "name":  "diastolic_bp",
+                                                                "type":  "smallint",
+                                                                "precision":  5
+                                                            },
+                                                            {
+                                                                "name":  "hrv",
+                                                                "type":  "decimal",
+                                                                "precision":  5,
+                                                                "scale":  4
+                                                            },
+                                                            {
+                                                                "name":  "age",
+                                                                "type":  "smallint",
+                                                                "precision":  5
+                                                            },
+                                                            {
+                                                                "name":  "gender",
+                                                                "type":  "varchar"
+                                                            },
+                                                            {
+                                                                "name":  "weight_kg",
+                                                                "type":  "decimal",
+                                                                "precision":  5,
+                                                                "scale":  2
+                                                            },
+                                                            {
+                                                                "name":  "height_m",
+                                                                "type":  "decimal",
+                                                                "precision":  3,
+                                                                "scale":  2
+                                                            },
+                                                            {
+                                                                "name":  "risk_category",
+                                                                "type":  "varchar"
+                                                            },
+                                                            {
+                                                                "name":  "ingested_at",
+                                                                "type":  "datetime2",
+                                                                "scale":  7
+                                                            }
+                                                        ],
+                                             "typeProperties":  {
+                                                                    "schema":  "dbo",
+                                                                    "table":  "patient_vitals"
+                                                                }
+                                         },
+                          "dependsOn":  [
+                                            "[concat(variables(\u0027factoryId\u0027), \u0027/linkedServices/ls_sql_patient_vitals\u0027)]"
+                                        ]
+                      },
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/pl_copy_raw_to_sql\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/pipelines",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "activities":  [
+                                                                {
+                                                                    "name":  "CopyRawToSQL",
+                                                                    "type":  "Copy",
+                                                                    "dependsOn":  [
+
+                                                                                  ],
+                                                                    "policy":  {
+                                                                                   "timeout":  "0.12:00:00",
+                                                                                   "retry":  0,
+                                                                                   "retryIntervalInSeconds":  30,
+                                                                                   "secureOutput":  false,
+                                                                                   "secureInput":  false
+                                                                               },
+                                                                    "userProperties":  [
+
+                                                                                       ],
+                                                                    "typeProperties":  {
+                                                                                           "source":  {
+                                                                                                          "type":  "DelimitedTextSource",
+                                                                                                          "storeSettings":  {
+                                                                                                                                "type":  "AzureBlobStorageReadSettings",
+                                                                                                                                "recursive":  true,
+                                                                                                                                "enablePartitionDiscovery":  false
+                                                                                                                            },
+                                                                                                          "formatSettings":  {
+                                                                                                                                 "type":  "DelimitedTextReadSettings"
+                                                                                                                             }
+                                                                                                      },
+                                                                                           "sink":  {
+                                                                                                        "type":  "AzureSqlSink",
+                                                                                                        "writeBehavior":  "insert",
+                                                                                                        "sqlWriterUseTableLock":  false
+                                                                                                    },
+                                                                                           "enableStaging":  false,
+                                                                                           "translator":  {
+                                                                                                              "type":  "TabularTranslator",
+                                                                                                              "mappings":  [
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Patient ID",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "patient_id",
+                                                                                                                                                "type":  "Int32",
+                                                                                                                                                "physicalType":  "int"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Timestamp",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "measured_at",
+                                                                                                                                                "type":  "DateTime",
+                                                                                                                                                "physicalType":  "datetime2"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Heart Rate",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "heart_rate",
+                                                                                                                                                "type":  "Int16",
+                                                                                                                                                "physicalType":  "smallint"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Respiratory Rate",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "respiratory_rate",
+                                                                                                                                                "type":  "Int16",
+                                                                                                                                                "physicalType":  "smallint"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Body Temperature",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "body_temperature",
+                                                                                                                                                "type":  "Decimal",
+                                                                                                                                                "physicalType":  "decimal",
+                                                                                                                                                "scale":  2,
+                                                                                                                                                "precision":  4
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Oxygen Saturation",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "oxygen_saturation",
+                                                                                                                                                "type":  "Decimal",
+                                                                                                                                                "physicalType":  "decimal",
+                                                                                                                                                "scale":  2,
+                                                                                                                                                "precision":  5
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Systolic Blood Pressure",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "systolic_bp",
+                                                                                                                                                "type":  "Int16",
+                                                                                                                                                "physicalType":  "smallint"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Diastolic Blood Pressure",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "diastolic_bp",
+                                                                                                                                                "type":  "Int16",
+                                                                                                                                                "physicalType":  "smallint"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Derived_HRV",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "hrv",
+                                                                                                                                                "type":  "Decimal",
+                                                                                                                                                "physicalType":  "decimal",
+                                                                                                                                                "scale":  4,
+                                                                                                                                                "precision":  5
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Age",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "age",
+                                                                                                                                                "type":  "Int16",
+                                                                                                                                                "physicalType":  "smallint"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Gender",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "gender",
+                                                                                                                                                "type":  "String",
+                                                                                                                                                "physicalType":  "varchar"
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Weight (kg)",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "weight_kg",
+                                                                                                                                                "type":  "Decimal",
+                                                                                                                                                "physicalType":  "decimal",
+                                                                                                                                                "scale":  2,
+                                                                                                                                                "precision":  5
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Height (m)",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "height_m",
+                                                                                                                                                "type":  "Decimal",
+                                                                                                                                                "physicalType":  "decimal",
+                                                                                                                                                "scale":  2,
+                                                                                                                                                "precision":  3
+                                                                                                                                            }
+                                                                                                                               },
+                                                                                                                               {
+                                                                                                                                   "source":  {
+                                                                                                                                                  "name":  "Risk Category",
+                                                                                                                                                  "type":  "String",
+                                                                                                                                                  "physicalType":  "String"
+                                                                                                                                              },
+                                                                                                                                   "sink":  {
+                                                                                                                                                "name":  "risk_category",
+                                                                                                                                                "type":  "String",
+                                                                                                                                                "physicalType":  "varchar"
+                                                                                                                                            }
+                                                                                                                               }
+                                                                                                                           ],
+                                                                                                              "typeConversion":  true,
+                                                                                                              "typeConversionSettings":  {
+                                                                                                                                             "allowDataTruncation":  true,
+                                                                                                                                             "treatBooleanAsNumber":  false
+                                                                                                                                         }
+                                                                                                          }
+                                                                                       },
+                                                                    "inputs":  [
+                                                                                   {
+                                                                                       "referenceName":  "ds_raw_csv",
+                                                                                       "type":  "DatasetReference",
+                                                                                       "parameters":  {
+
+                                                                                                      }
+                                                                                   }
+                                                                               ],
+                                                                    "outputs":  [
+                                                                                    {
+                                                                                        "referenceName":  "ds_sql_patient_vitals",
+                                                                                        "type":  "DatasetReference",
+                                                                                        "parameters":  {
+
+                                                                                                       }
+                                                                                    }
+                                                                                ]
+                                                                }
+                                                            ],
+                                             "policy":  {
+                                                            "elapsedTimeMetric":  {
+
+                                                                                  }
+                                                        },
+                                             "annotations":  [
+
+                                                             ]
+                                         },
+                          "dependsOn":  [
+                                            "[concat(variables(\u0027factoryId\u0027), \u0027/datasets/ds_raw_csv\u0027)]",
+                                            "[concat(variables(\u0027factoryId\u0027), \u0027/datasets/ds_sql_patient_vitals\u0027)]"
+                                        ]
+                      },
+                      {
+                          "name":  "[concat(parameters(\u0027factoryName\u0027), \u0027/trg_raw_csv_created\u0027)]",
+                          "type":  "Microsoft.DataFactory/factories/triggers",
+                          "apiVersion":  "2018-06-01",
+                          "properties":  {
+                                             "annotations":  [
+                                                                 "Starts the raw-to-SQL pipeline for new CSV uploads."
+                                                             ],
+                                             "runtimeState":  "Stopped",
+                                             "pipelines":  [
+                                                               {
+                                                                   "pipelineReference":  {
+                                                                                             "referenceName":  "pl_copy_raw_to_sql",
+                                                                                             "type":  "PipelineReference"
+                                                                                         },
+                                                                   "parameters":  {
+
+                                                                                  }
+                                                               }
+                                                           ],
+                                             "type":  "BlobEventsTrigger",
+                                             "typeProperties":  {
+                                                                    "blobPathBeginsWith":  "/raw/blobs/",
+                                                                    "blobPathEndsWith":  ".csv",
+                                                                    "ignoreEmptyBlobs":  true,
+                                                                    "scope":  "[parameters(\u0027storageAccountResourceId\u0027)]",
+                                                                    "events":  [
+                                                                                   "Microsoft.Storage.BlobCreated"
+                                                                               ]
+                                                                }
+                                         },
+                          "dependsOn":  [
+                                            "[concat(variables(\u0027factoryId\u0027), \u0027/pipelines/pl_copy_raw_to_sql\u0027)]"
+                                        ]
+                      }
+                  ]
+}
